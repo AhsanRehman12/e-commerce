@@ -27,7 +27,7 @@ export class AuthService {
     } else {
       return { success: false, message: "Email not found" };
     }
-    let payload = { sub: UserInfo._id, name: UserInfo.name };
+    let payload = { sub: UserInfo._id, name: UserInfo.name, role: UserInfo.role };
     let token = await this.jwt.signAsync(payload);
     let responseObj = {
       name: UserInfo.name,
@@ -41,7 +41,6 @@ export class AuthService {
 
   async Logout(id: string) {
     let findUser = await this.userService.DeleteUserById(id);
-    console.log(findUser)
     return findUser;
   }
 }

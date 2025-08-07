@@ -1,3 +1,3 @@
 export const jwtConstants = {
-  jwtSecret: 'jknfkldjk$kljke&lfnkd*dnfkll)dfdn*(fdnflkd^klnfaklknf%fkdn!fkdfkndk#kfkd@',
+  jwtSecret: 'jknfkldjk$kljke&lfnkd*dnfklldfdn*fdnflkd^klnfaklknf%fkdn!fkdfkndk#kfkd@',
 }
