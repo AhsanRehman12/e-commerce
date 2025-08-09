@@ -1,4 +1,4 @@
-import {  Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { User } from './schemas/users.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,6 +8,7 @@ import { ProductService } from 'src/product/product.service';
 
 @Injectable()
 export class UsersService {
+
   constructor(@InjectModel('User') private UserModel: Model<User>, private productService: ProductService) { }
   async create(UserInfo: UserDto) {
     try {
@@ -39,6 +40,14 @@ export class UsersService {
       return product
     } catch (error) {
       console.log(error);
+    }
+  }
+  async findProduct(id: string) {
+    try {
+      const allUserProducts = await this.productService.searchProductOfUser(id);
+      return allUserProducts;
+    } catch (error) {
+      console.log(error)
     }
   }
 }
