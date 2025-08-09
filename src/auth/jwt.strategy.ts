@@ -4,7 +4,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { Model } from "mongoose";
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { jwtConstants } from "src/constants/jwtConstant";
-import { User } from "src/users/users.schema";
+import { User } from "src/users/schemas/users.schema";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(@InjectModel(User.name) private UserModel: Model<User>) {
@@ -21,5 +21,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       role: payload.role,
     };
   }
-
 }

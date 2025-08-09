@@ -7,7 +7,7 @@ import { jwtConstants } from 'src/constants/jwtConstant';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/users/users.schema';
+import { User, UserSchema } from 'src/users/schemas/users.schema';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' }), UsersModule, JwtModule.register({
