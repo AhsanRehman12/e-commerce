@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { UserDto } from './dto/user.dto';
 import { ProductDto } from 'src/product/dto/product.dto';
 import { ProductService } from 'src/product/product.service';
+import { UpdateProduct } from 'src/product/dto/product.update.dto';
 
 @Injectable()
 export class UsersService {
@@ -46,6 +47,22 @@ export class UsersService {
     try {
       const allUserProducts = await this.productService.searchProductOfUser(id);
       return allUserProducts;
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  async updateProduct(id: string, updatedDate: UpdateProduct) {
+    try {
+      const updateProduct = await this.productService.updateProduct(id,updatedDate);
+      return updateProduct;
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  async deleteProduct(id: string, userId: string) {
+    try {
+      const deleteProduct = await this.productService.deleteProduct(id, userId)
+      return deleteProduct
     } catch (error) {
       console.log(error)
     }

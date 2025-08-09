@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Product } from './schemas/product.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProductDto } from './dto/product.dto';
+import { UpdateProduct } from './dto/product.update.dto';
 
 @Injectable()
 export class ProductService {
@@ -39,7 +40,26 @@ export class ProductService {
       const products = await this.productModel.find({ userId: id })
       return products
     } catch (error) {
+      console.log(error)
+    }
+  }
+  async updateProduct(productId: string, updatedData: UpdateProduct) {
+    try {
+      const updatedProdcut = await this.productModel.findByIdAndUpdate(productId, updatedData,{new:true})
+      return updatedProdcut
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  async deleteProduct(productId: string, userId: string) {
+    try {
+      const deleteProduct = await this.productModel.findById(productId)
+      if (!deleteProduct) return { success: false, message: "Product Not Found" }
+      if (deleteProduct.userId.toString() != userId) return { success: false, message: 'Your are not allowed to Delete the Product' }
 
+      await this.productModel.findByIdAndDelete(productId)
+    } catch (error) {
+      console.log(error)
     }
   }
 }
