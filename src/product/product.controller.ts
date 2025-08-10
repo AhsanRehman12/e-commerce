@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 
 @Controller('product')
@@ -13,3 +13,5 @@ export class ProductController {
     return this.productService.SearchProduct();
   }
 }
+
+

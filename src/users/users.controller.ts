@@ -2,8 +2,6 @@ import { Body, Controller, Post, Get, Request, UploadedFile, UseGuards, UseInter
 import { UsersService } from './users.service';
 import { ProductDto } from 'src/product/dto/product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthenticatedRequest } from 'src/utils/user.interface';
 import { UpdateProduct } from 'src/product/dto/product.update.dto';
