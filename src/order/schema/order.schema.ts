@@ -1,36 +1,26 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Types } from "mongoose";
-import { User } from "src/users/schemas/users.schema";
-
-@Schema()
+import { Prop, Schema } from '@nestjs/mongoose'
+Schema({ timestamps: true })
 export class Order {
+  @Prop({ required: true })
+  userId: string
   @Prop({
-    type: [{
-      ProductId: { type: Types.ObjectId, ref: 'Product' },
-      quantity: { type: Number},
-      price: { type: Number}
-    }],required:true
+    type: [
+      {
+        productId: { type: String, required: true },
+        quantity: { type: String, required: Number },
+        name: { type: String, required: true },
+        price: { type: Number, required: true }
+      },
+    ]
   })
-  items: {
-    ProductId: Types.ObjectId,
+  list_Items: {
+    productId: string,
     quantity: number,
+    name: string,
     price: number
-  }
-  @Prop({ required: true, type: Types.ObjectId, ref: User.name  })
-  userId: Types.ObjectId
+  }[]
+  @Prop({ required: true })
+  amount_total: number
   @Prop({ default: 'pending' })
   status: string
-  @Prop({ required: true })
-  totalPrice: number
-  @Prop({ type: Object, required: true })
-  shippingAddress: {
-    fullName: string;
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
 }
-
-export const OrderSchema = SchemaFactory.createForClass(Order)

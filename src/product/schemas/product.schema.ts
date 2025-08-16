@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 import { User } from "src/users/schemas/users.schema";
 
-@Schema()
+@Schema({timestamps:true})
 export class Product {
   @Prop({ required: true })
   name: string

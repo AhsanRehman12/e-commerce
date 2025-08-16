@@ -1,16 +1,19 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Get, Controller, Post, Res, Query, Body, UseGuards, Req } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-import { Cart } from './cart.model';
+import { AuthGuard } from '@nestjs/passport';
+import { AuthenticatedRequest } from 'src/utils/user.interface';
 
 @Controller('stripe')
 export class StripeController {
   constructor(private stripeService: StripeService) { }
-  @Post()
-  checkOut(@Body() body: { cart: Cart }) {
-    try {
-      return this.stripeService.checkOut(body.cart);
-    } catch (error) {
-      return error;
-    }
+  @UseGuards(AuthGuard('jwt'))
+  @Post('create-payment-intent')
+  createPaymentIntent(@Req() req:AuthenticatedRequest,@Body() cartItem:any) {
+    return this.stripeService.createCheckoutSession(req.user.userId,cartItem);
+  }
+
+  @Get('pay/success/checkout/session')
+  SucessSession(@Query('session_id') sessionId: string) {
+    return this.stripeService.SuccessSession(sessionId);
   }
 }

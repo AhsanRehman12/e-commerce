@@ -1,21 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import Stripe from 'stripe';
-import { Cart } from './cart.model';
 
 @Injectable()
 export class StripeService {
-  private stripe: Stripe;
-  constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET!, {
-      apiVersion: '2025-07-30.basil'
-    });
+  createPaymentIntent(amount: number, currency: string) {
+    throw new Error('Method not implemented.');
   }
-  checkOut(cart: Cart) {
-    const totalPrice = cart.reduce((acc, total) => acc + total.quantity * total.price, 0)
-    return this.stripe.paymentIntents.create({
-      amount: totalPrice * 100,
-      currency: 'usd',
-      payment_method_types: ['card']
+  private stripe: Stripe
+  constructor(@Inject('STRIPE_SECRET') private readonly apiKey: string) {
+    this.stripe = new Stripe(this.apiKey, {
+      apiVersion: '2025-07-30.basil'
     })
+  }
+
+  async createCheckoutSession(userId: string, cartItem: any[]) {
+    const listItems: any = []
+    for (let cart of cartItem) {
+      listItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: cart.name
+          },
+          unit_amount: cart.price * 100
+        },
+        quantity: cart.quantity,
+      })
+    }
+
+    const checkoutSession = await this.stripe.checkout.sessions.create({
+      line_items: listItems,
+      mode: 'payment',
+      phone_number_collection: {
+        enabled: true
+      },
+      shipping_address_collection: {
+        allowed_countries: ['PK', 'US', 'CA']
+      },
+      payment_intent_data: {
+        setup_future_usage: 'on_session',
+      },
+      customer: 'cus_SsOW6syBScP379',
+      success_url: 'http://localhost:3000/stripe' + '/pay/success/checkout/session?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'http://localhost:3000/stripe' + '/pay/failed/checkout/session',
+      metadata: {
+
+        userId: userId
+      }
+    })
+    return checkoutSession
+  }
+
+  async SuccessSession(sessionId: string) {
+    try {
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['line_items.data.price.product']
+      });
+      console.log(session?.line_items,'session')
+      return session
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
