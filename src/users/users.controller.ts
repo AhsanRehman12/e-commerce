@@ -6,32 +6,33 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthenticatedRequest } from 'src/utils/user.interface';
 import { UpdateProduct } from 'src/product/dto/product.update.dto';
 import { multerProductImageConfig } from 'src/utils/file.upload';
+import { ProductService } from 'src/product/product.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UsersService) { }
+  constructor(private userService: UsersService, private productService: ProductService) { }
   @Post('create-product')
   @UseInterceptors(FileInterceptor('image', multerProductImageConfig))
   createProduct(@Body() product: ProductDto, @UploadedFile() file: Express.Multer.File) {
-    return this.userService.CreateProduct({ ...product, image: file?.filename })
+    return this.productService.CreateProduct(product, file)
   }
 
   @Get('my-product')
   @UseGuards(AuthGuard('jwt'))
   findProduct(@Request() req: AuthenticatedRequest) {
-    return this.userService.findProduct(req.user.userId);
+    return this.userService.findProductByUserId(req.user.userId);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('delete-product/:id')
   deleteProduct(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
-    return this.userService.deleteProduct(id, req.user.userId)
+    return this.productService.deleteProduct(id, req.user.userId)
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('update-product/:id')
   @UseInterceptors(FileInterceptor('image', multerProductImageConfig))
   updateProduct(@Body() updateData: UpdateProduct, @Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
-    return this.userService.updateProduct(id, { ...updateData, image: file?.filename })
+    return this.productService.updateProduct(id, updateData, file)
   }
 }

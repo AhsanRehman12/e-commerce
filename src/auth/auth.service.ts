@@ -27,11 +27,11 @@ export class AuthService {
     } else {
       return { success: false, message: "Email not found" };
     }
-    let payload = { sub: UserInfo._id, name: UserInfo.name, role: UserInfo.role };
+    let payload = { sub: UserInfo._id, name: UserInfo.name,  role: UserInfo.role };
     let token = await this.jwt.signAsync(payload);
     let responseObj = {
       name: UserInfo.name,
-      email: UserInfo.email,
+      email:UserInfo.email,
       token: token,
       success: true,
       message: 'User Login Successfully'

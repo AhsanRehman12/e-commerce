@@ -10,25 +10,26 @@ import { StripeModule } from './stripe/stripe.module';
 import { WebhookController } from './webhook/webhook.controller';
 import { json } from 'express';
 import { OrderModule } from './order/order.module';
+import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [AuthModule, ConfigModule.forRoot({
     envFilePath: '.env',
     isGlobal: true
-  }), MongooseModule.forRoot(process.env.DB_URL!), UsersModule, ProductModule, StripeModule.forRootAsync(), OrderModule],
+  }), MongooseModule.forRoot(process.env.DB_URL!), UsersModule, ProductModule, StripeModule.forRootAsync(), OrderModule, CloudinaryModule],
   controllers: [AppController, WebhookController],
-  providers: [AppService],
+  providers: [AppService, CloudinaryService],
 })
-export class AppModule implements NestModule{ 
+export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-      consumer
-      .apply(json({verify:(req:any,res,buf)=> {req.rawBody = buf}}))
-      .exclude({path:'webhook', method:RequestMethod.POST})
+    consumer
+      .apply(json({ verify: (req: any, res, buf) => { req.rawBody = buf } }))
+      .exclude({ path: 'webhook', method: RequestMethod.POST })
       .forRoutes('*')
 
-      consumer
-      .apply(json({verify:(req:any,res,buf)=> {req.rawBody = buf}}))
+    consumer
+      .apply(json({ verify: (req: any, res, buf) => { req.rawBody = buf } }))
       .forRoutes(WebhookController)
   }
 }
-  

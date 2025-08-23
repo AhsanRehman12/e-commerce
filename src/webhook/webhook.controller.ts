@@ -3,6 +3,7 @@ import { Response } from 'express';
 import { RawBodyRequest } from 'src/RawBodyRequest';
 import Stripe from 'stripe';
 import { OrderService } from 'src/order/order.service';
+import { ProductOrderDto } from 'src/order/dto/product.order.dto';
 
 @Controller('webhook')
 export class WebhookController {
@@ -33,15 +34,23 @@ export class WebhookController {
       const fullSession = await this.stripe.checkout.sessions.retrieve(session.id, {
         expand: ['line_items.data.price.product']
       })
-      const items = fullSession.line_items?.data.map((item) => {
-        console.log(item, 'itttt')
-        productId: (item.price?.product as Stripe.Product).id;
-        name: (item.price?.product as Stripe.Product).name;
-        price: (item.price?.unit_amount ?? 0) * 100;
-        quantity: item.quantity;
-      })
-      // const shippingAddress = JSON.parse()
-      // this.orderService.createOrder();
+      const items = fullSession.line_items?.data.map((item) => ({
+        stripeProductId: (item.price?.product as Stripe.Product).id,
+        productId: (item.price?.product as Stripe.Product).metadata.productId,
+        name: (item.price?.product as Stripe.Product).name,
+        price: (item.price?.unit_amount ?? 0) * 100,
+        images: (item.price?.product as Stripe.Product).images,
+        description: (item.price?.product as Stripe.Product).description,
+        quantity: item.quantity,
+        amount_total: item.amount_total
+      }))
+      const customer_info = {
+        customer_details: session?.customer_details?.address,
+        name: session?.customer_details?.name,
+        phone: session?.customer_details?.phone,
+        email: session?.customer_details?.email
+      }
+      this.orderService.createOrder(session?.metadata?.userId, items, customer_info);
     }
     return res.status(200).send('Webhook received successfully.');
   }

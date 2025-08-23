@@ -13,4 +13,4 @@ export class ProductDto{
   image:string
   @IsString()
   userId:string
-}
+}[]

@@ -4,11 +4,16 @@ import { Product } from './schemas/product.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProductDto } from './dto/product.dto';
 import { UpdateProduct } from './dto/product.update.dto';
+import * as path from 'path';
+import * as fs from 'fs'
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductService {
-  constructor(@InjectModel('Product') private productModel: Model<Product>) { }
-
+  constructor(@InjectModel('Product') private productModel: Model<Product>, private cloudinaryService: CloudinaryService) { }
+  async findProductById(Id: string) {
+    return await this.productModel.find({ _id: Id })
+  }
   async SearchProductByName(name: string) {
     try {
       const product = await this.productModel.find({ name: { $regex: name, $options: 'i' } })
@@ -18,12 +23,21 @@ export class ProductService {
     }
   }
 
-  async CreateProduct(product: ProductDto) {
+  async CreateProduct(product: ProductDto, file: Express.Multer.File) {
+    console.log(product,file)
     try {
-      const newProduct = await this.productModel.create(product);
-      return newProduct;
+      if (file) {
+        const uploadedFolder = path.join(process.cwd(), 'uploads')
+        let image = path.join(uploadedFolder, file.filename);
+        let uploadedImage = await this.cloudinaryService.cloudinaryUpload(image);
+        if (uploadedImage) {
+          const Product = await this.productModel.create({ ...product, image: uploadedImage });
+          fs.unlinkSync(image)
+          return Product
+        }
+      }
     } catch (error) {
-      console.log(error)
+      return { status: '', message: 'Error occur creating product' }
     }
   }
 
@@ -40,13 +54,22 @@ export class ProductService {
       const products = await this.productModel.find({ userId: id })
       return products
     } catch (error) {
-      console.log(error)
+      return { message: 'Error occur searching product' }
     }
   }
-  async updateProduct(productId: string, updatedData: UpdateProduct) {
+  async updateProduct(productId: string, updatedData: UpdateProduct, file: Express.Multer.File) {
+
     try {
-      const updatedProdcut = await this.productModel.findByIdAndUpdate(productId, updatedData,{new:true})
-      return updatedProdcut
+      if (file) {
+        const localPath = path.join('./uploads', file.filename)
+        const imageUrl = await this.cloudinaryService.cloudinaryUpload(localPath);
+        if (imageUrl) {
+          const updateProduct = await this.productModel.findByIdAndUpdate(productId, { ...updatedData, image: imageUrl });
+          return updateProduct;
+        }
+        fs.unlinkSync(localPath)
+      }
+      return { msg: 'Product Updated Successfully' }
     } catch (error) {
       console.log(error)
     }
@@ -56,7 +79,7 @@ export class ProductService {
       const deleteProduct = await this.productModel.findById(productId)
       if (!deleteProduct) return { success: false, message: "Product Not Found" }
       if (deleteProduct.userId.toString() != userId) return { success: false, message: 'Your are not allowed to Delete the Product' }
-
+      //deletingProduct
       await this.productModel.findByIdAndDelete(productId)
     } catch (error) {
       console.log(error)
