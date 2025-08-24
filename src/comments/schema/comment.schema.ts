@@ -4,13 +4,16 @@ import { Product, ProductSchema } from "src/product/schemas/product.schema";
 import { User, UserSchema } from "src/users/schemas/users.schema";
 
 @Schema({ timestamps: true })
+
 export class Comment {
-  @Prop({ type: Types.ObjectId, ref: User.name, schema: UserSchema })
+  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   userId: Types.ObjectId
-  @Prop({type:Types.ObjectId,ref:Product.name,schema:ProductSchema})
-  productId:Types.ObjectId
-  @Prop({required:true})
-  comment:string
+  @Prop({ type: Types.ObjectId, ref: Product.name, required: true })
+  productId: Types.ObjectId
+  @Prop({ type: Types.ObjectId, ref: 'Comment', default: null })
+  parentId: Types.ObjectId | null
+  @Prop({ required: true })
+  comment: string
 }
 
 

@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Injectable} from '@nestjs/common';
+import mongoose, { Model } from 'mongoose';
 import { Product } from './schemas/product.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProductDto } from './dto/product.dto';
@@ -12,7 +12,12 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 export class ProductService {
   constructor(@InjectModel('Product') private productModel: Model<Product>, private cloudinaryService: CloudinaryService) { }
   async findProductById(Id: string) {
-    return await this.productModel.find({ _id: Id })
+    try {
+      return await this.productModel.findById(Id)
+    }
+    catch (error) {
+      return error;
+    }
   }
   async SearchProductByName(name: string) {
     try {
@@ -24,7 +29,6 @@ export class ProductService {
   }
 
   async CreateProduct(product: ProductDto, file: Express.Multer.File) {
-    console.log(product,file)
     try {
       if (file) {
         const uploadedFolder = path.join(process.cwd(), 'uploads')
@@ -37,7 +41,7 @@ export class ProductService {
         }
       }
     } catch (error) {
-      return { status: '', message: 'Error occur creating product' }
+      return { success: false, message: 'Error occur creating product' }
     }
   }
 
@@ -75,6 +79,8 @@ export class ProductService {
     }
   }
   async deleteProduct(productId: string, userId: string) {
+    const product = await this.findProductById(productId);
+    if (product?.userId !== new mongoose.Types.ObjectId(userId)) return { success: false, message: 'You are not able to delete this.' }
     try {
       const deleteProduct = await this.productModel.findById(productId)
       if (!deleteProduct) return { success: false, message: "Product Not Found" }

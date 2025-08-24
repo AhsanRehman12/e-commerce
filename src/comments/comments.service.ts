@@ -42,7 +42,7 @@ export class CommentsService {
         _id: commentId,
         userId: userId
       })
-      
+
       const updatedComment = await this.commentModel.findOneAndUpdate({ _id: commentId, userId: userId }, { $set: { comment: comment.comment } }, { returnDocument: 'after' })
       return { success: true, message: 'Comment Updated Successfully', updatedComment };
     } catch (error) {
