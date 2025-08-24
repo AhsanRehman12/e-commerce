@@ -12,12 +12,13 @@ import { json } from 'express';
 import { OrderModule } from './order/order.module';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [AuthModule, ConfigModule.forRoot({
     envFilePath: '.env',
     isGlobal: true
-  }), MongooseModule.forRoot(process.env.DB_URL!), UsersModule, ProductModule, StripeModule.forRootAsync(), OrderModule, CloudinaryModule],
+  }), MongooseModule.forRoot(process.env.DB_URL!), UsersModule, ProductModule, StripeModule.forRootAsync(), OrderModule, CloudinaryModule, CommentsModule],
   controllers: [AppController, WebhookController],
   providers: [AppService, CloudinaryService],
 })
