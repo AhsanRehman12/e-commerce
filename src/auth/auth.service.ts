@@ -4,16 +4,19 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { JwtTokenDto } from './dto/jwttoken.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UsersService, private jwt: JwtService) { }
+  constructor(private userService: UsersService, private jwt: JwtService,
+    private UserService:UsersService
+  ) { }
   async RegisterUser(user: RegisterDto) {
     let { password, email, confirmPassword } = user;
     if (password != confirmPassword) return { message: "Password doesn't matched" }
     let findUser = await this.userService.findUserByEmail(email);
     if (findUser) return { success: false, message: 'Email already register.' }
-    const hashPassword = await bcrypt.hash(password, 10)
+    let hashPassword = await this.HashPassword(password)
     return this.userService.create({
       ...user, password: hashPassword
     })
@@ -27,20 +30,34 @@ export class AuthService {
     } else {
       return { success: false, message: "Email not found" };
     }
-    let payload = { sub: UserInfo._id, name: UserInfo.name,  role: UserInfo.role };
-    let token = await this.jwt.signAsync(payload);
-    let responseObj = {
-      name: UserInfo.name,
-      email:UserInfo.email,
-      token: token,
-      success: true,
-      message: 'User Login Successfully'
-    }
-    return responseObj;
+
+    return this.GenerateToken(UserInfo);
   }
 
   async Logout(id: string) {
     let findUser = await this.userService.DeleteUserById(id);
     return findUser;
+  }
+
+  async ResetPassword(userId:string,newPassword:string){
+    let hashPassword = await this.HashPassword(newPassword);
+    return this.userService.updatePassword(userId,hashPassword);
+  }
+
+  async GenerateToken(UserInfo: JwtTokenDto) {
+    let payload = { sub: UserInfo._id, name: UserInfo.name, role: UserInfo.role };
+    let token = await this.jwt.signAsync(payload);
+    let responseObj = {
+      name: UserInfo.name,
+      token: token,
+      success: true,
+      message: 'User Login Successfully'
+    }
+    return responseObj
+  }
+
+  async HashPassword(password: string) {
+    const hashPassword = await bcrypt.hash(password, 10)
+    return hashPassword;
   }
 }

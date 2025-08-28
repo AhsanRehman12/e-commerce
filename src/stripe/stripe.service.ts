@@ -19,13 +19,13 @@ export class StripeService {
     const listItems: any = []
     for (let cart of cartItem) {
       let findProduct = await this.productService.findProductById(cart.productId)
-      if (findProduct.length == 0) return { msg: 'Product Not Found' };
+      if (findProduct?.length == 0) return { msg: 'Product Not Found' };
     }
     for (let cart of cartItem) {
       listItems.push({
         price_data: {
           currency: 'usd',
-          product_data: { 
+          product_data: {
             name: cart.name,
             description: cart.description,
             images: [cart.images[0]],
@@ -40,8 +40,8 @@ export class StripeService {
     }
     const customer = await this.stripe.customers.create({
       name: user?.name,
-      email:user?.email,
-      phone:user?.phone,
+      email: user?.email,
+      phone: user?.phone,
     })
     const checkoutSession = await this.stripe.checkout.sessions.create({
       line_items: listItems,
@@ -73,7 +73,7 @@ export class StripeService {
       });
       return session
     } catch (error) {
-      return {success:false,message:'Error during session retriving'}
+      return { success: false, message: 'Error during session retriving' }
     }
   }
 }

@@ -9,8 +9,8 @@ export class User {
   email: string
   @Prop({ required: true })
   password: string
-  @Prop({ type: [{ type: String, enum: Role }], default: [Role.User] })
-  role: Role[]
+  @Prop({ type: String, enum: Role, default: Role.User })
+  role: Role
   @Prop({required:true,type:String})
   phone:string
   @Prop({ type: Date, required: true })

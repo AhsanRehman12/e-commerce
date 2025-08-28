@@ -34,21 +34,26 @@ export class WebhookController {
       const fullSession = await this.stripe.checkout.sessions.retrieve(session.id, {
         expand: ['line_items.data.price.product']
       })
-      const items = fullSession.line_items?.data.map((item) => ({
-        stripeProductId: (item.price?.product as Stripe.Product).id,
-        productId: (item.price?.product as Stripe.Product).metadata.productId,
-        name: (item.price?.product as Stripe.Product).name,
-        price: (item.price?.unit_amount ?? 0) * 100,
-        images: (item.price?.product as Stripe.Product).images,
-        description: (item.price?.product as Stripe.Product).description,
-        quantity: item.quantity,
-        amount_total: item.amount_total
-      }))
+      const items = fullSession.line_items?.data.map((item) => {
+        const product = item.price?.product as Stripe.Product;
+        return {
+          stripeProductId: product.id,
+          productId: product.metadata.productId,
+          name: product.name,
+          price: (item.price?.unit_amount ?? 0) * 100,
+          images: product.images,
+          description: product.description,
+          quantity: item.quantity,
+          amount_total: item.amount_total
+        }
+      })
+
+      const customerInfo = session?.customer_details;
       const customer_info = {
-        customer_details: session?.customer_details?.address,
-        name: session?.customer_details?.name,
-        phone: session?.customer_details?.phone,
-        email: session?.customer_details?.email
+        customer_details: customerInfo?.address,
+        name: customerInfo?.name,
+        phone: customerInfo?.phone,
+        email: customerInfo?.email
       }
       this.orderService.createOrder(session?.metadata?.userId, items, customer_info);
     }

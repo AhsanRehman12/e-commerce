@@ -36,7 +36,6 @@ export class CommentsService {
   }
   async updateComment(userId: string, commentId: string, comment: commentDto) {
     if (userId !== comment.userId) throw new UnauthorizedException()
-    console.log(userId, 'uuu', commentId, 'ccc', comment, 'commen')
     try {
       const find = await this.commentModel.findOne({
         _id: commentId,

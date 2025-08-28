@@ -13,12 +13,26 @@ import { OrderModule } from './order/order.module';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CommentsModule } from './comments/comments.module';
+import { MailModule } from './mail/mail.module';
+import { LoogerModule } from './looger/looger.module';
 
 @Module({
-  imports: [AuthModule, ConfigModule.forRoot({
-    envFilePath: '.env',
-    isGlobal: true
-  }), MongooseModule.forRoot(process.env.DB_URL!), UsersModule, ProductModule, StripeModule.forRootAsync(), OrderModule, CloudinaryModule, CommentsModule],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true
+    }),
+    MongooseModule.forRoot(process.env.DB_URL!),
+    AuthModule,
+    UsersModule,
+    ProductModule,
+    StripeModule.forRootAsync(),
+    OrderModule,
+    CloudinaryModule,
+    CommentsModule,
+    MailModule,
+    LoogerModule,
+  ],
   controllers: [AppController, WebhookController],
   providers: [AppService, CloudinaryService],
 })

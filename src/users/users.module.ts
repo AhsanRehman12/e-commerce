@@ -4,12 +4,13 @@ import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/users.schema';
 import { ProductModule } from 'src/product/product.module';
-import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { LoogerModule } from 'src/looger/looger.module';
+import { LoogerService } from 'src/looger/looger.service';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), ProductModule],
+  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), ProductModule,LoogerModule],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService,LoogerService],
   exports: [UsersService]
 })
 export class UsersModule { }

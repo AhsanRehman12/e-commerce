@@ -3,13 +3,12 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
-
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule,{
-    rawBody:true,
-    bodyParser:true
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+    bodyParser: true
   });
-  app.useStaticAssets(join(__dirname,'..','uploads'))
+  app.useStaticAssets(join(__dirname, '..', 'uploads'))
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

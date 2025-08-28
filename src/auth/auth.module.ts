@@ -8,13 +8,20 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/users/schemas/users.schema';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-  imports: [PassportModule.register({ defaultStrategy: 'jwt' }), UsersModule, JwtModule.register({
-    global: true,
-    secret: jwtConstants.jwtSecret,
-    signOptions: { expiresIn: '1h' }
-  }), MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+  imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    UsersModule,
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.jwtSecret,
+      signOptions: { expiresIn: '1h' }
+    }),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MailModule
+  ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
