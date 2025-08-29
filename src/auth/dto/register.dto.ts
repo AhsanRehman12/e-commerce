@@ -15,5 +15,5 @@ export class RegisterDto {
   @IsNotEmpty()
   dob: string
   @IsNumber()
-  phone:number
+  phone:string
 }

@@ -5,7 +5,7 @@ import { CancelOrderDto } from './dto/cancelOrder.dto';
 @Controller('order')
 export class OrderController {
   constructor(private orderService: OrderService) { }
-  @Put('cancel-order/:id')
+  @Put('/:id')
   cancelOrder(@Param('id') id: string, @Body() userInfo:CancelOrderDto) {
     return this.orderService.canelOrder(id, userInfo)
   }

@@ -11,6 +11,4 @@ export class ProductDto{
   category:string
   @IsString()
   image:string
-  @IsString()
-  userId:string
 }[]

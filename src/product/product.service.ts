@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import mongoose, { Model } from 'mongoose';
 import { Product } from './schemas/product.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -22,6 +22,13 @@ export class ProductService {
       return error;
     }
   }
+
+  async AuthenticateUserAndProduct(productId: string, userId: string) {
+    const product = await this.findProductById(productId);
+    if (product?.userId !== userId) return { success: false, message: 'You are not able to make Changes.' }
+    if (!product) return { success: false, message: "Product Not Found" }
+  }
+
   async SearchProductByName(name: string) {
     try {
       const product = await this.productModel.find({ name: { $regex: name, $options: 'i' } })
@@ -32,11 +39,11 @@ export class ProductService {
     }
   }
 
-  async CreateProduct(product: ProductDto, file: Express.Multer.File) {
+  async CreateProduct(product: ProductDto, file: Express.Multer.File, userId: string) {
     try {
       const { uploadedImage, image } = await UploadingImage(file)
       if (uploadedImage) {
-        const Product = await this.productModel.create({ ...product, image: uploadedImage });
+        const Product = await this.productModel.create({ ...product, image: uploadedImage, userId });
         fs.unlinkSync(image)
         return Product
       }
@@ -64,13 +71,13 @@ export class ProductService {
       throw new BadRequestException(error.message)
     }
   }
-  async updateProduct(productId: string, updatedData: UpdateProduct, file: Express.Multer.File) {
-
+  async updateProduct(productId: string, updatedData: UpdateProduct, file: Express.Multer.File,userId:string) {
+    await this.AuthenticateUserAndProduct(productId,userId)
     try {
       const localPath = path.join('./uploads', file.filename)
       const { uploadedImage } = await UploadingImage(file)
       if (uploadedImage) {
-        const updateProduct = await this.productModel.findByIdAndUpdate(productId, { ...updatedData, image: uploadedImage },{new:true});
+        const updateProduct = await this.productModel.findByIdAndUpdate(productId, { ...updatedData, image: uploadedImage }, { new: true });
         return updateProduct;
       }
       fs.unlinkSync(localPath)
@@ -81,13 +88,11 @@ export class ProductService {
     }
   }
   async deleteProduct(productId: string, userId: string) {
-    const product = await this.findProductById(productId);
-    if (product?.userId !== userId) return { success: false, message: 'You are not able to delete this.' }
-    if (!product) return { success: false, message: "Product Not Found" }
+    await this.AuthenticateUserAndProduct(productId, userId)
     try {
       //deletingProduct
       await this.productModel.findByIdAndDelete(productId)
-      return {message:'Product Deleted Successfully'}
+      return { message: 'Product Deleted Successfully' }
     } catch (error) {
       this.loogerService.error(error);
       throw new BadRequestException(error.message)

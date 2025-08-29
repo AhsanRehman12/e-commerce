@@ -26,37 +26,33 @@ export class CommentsService {
   }
 
   async createComment(userId: string, comment: commentDto) {
-    if (userId !== comment.userId) return { message: 'You are not able to comment.Try Login first' }
     try {
-      const newComment = await this.commentModel.create(comment);
-      return { success: true, message: 'Comment created successfully', newComment };
+      const newComment = await this.commentModel.create({ ...comment, userId });
+      return newComment;
     } catch (error) {
       return { success: false, message: 'Error occur while adding comment' }
     }
   }
   async updateComment(userId: string, commentId: string, comment: commentDto) {
-    if (userId !== comment.userId) throw new UnauthorizedException()
     try {
-      const find = await this.commentModel.findOne({
-        _id: commentId,
-        userId: userId
-      })
-
       const updatedComment = await this.commentModel.findOneAndUpdate({ _id: commentId, userId: userId }, { $set: { comment: comment.comment } }, { returnDocument: 'after' })
-      return { success: true, message: 'Comment Updated Successfully', updatedComment };
+      return updatedComment;
     } catch (error) {
       return { success: false, message: 'Error while updating comment' }
     }
   }
 
-  async deleteComment(commentId: string, userId: string) {
-    const comment = await this.findCommentById(commentId);
-    if (comment?.userId !== userId) return { message: 'You are not allowed to delete this' }
-    try {
-      const deltedComment = await this.commentModel.findByIdAndDelete(commentId);
-      return { success: true, message: 'Comment deleted' }
-    } catch (error) {
-      return { success: false, message: 'Error while deleting Comment' }
-    }
+  async deleteComment(commentId: string) {
+    let comment = await this.findCommentById(commentId);
+    if (comment)
+      try {
+        const deltedComment = await this.commentModel.findByIdAndDelete(commentId);
+        //deleteNestedComments
+        let nestedComment = await this.commentModel.deleteMany({ parentId: commentId })
+        console.log(nestedComment)
+        return { success: true, message: 'Comment deleted', deltedComment }
+      } catch (error) {
+        return { success: false, message: 'Error while deleting Comment' }
+      }
   }
 }

@@ -8,9 +8,7 @@ import { JwtTokenDto } from './dto/jwttoken.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UsersService, private jwt: JwtService,
-    private UserService:UsersService
-  ) { }
+  constructor(private userService: UsersService, private jwt: JwtService) { }
   async RegisterUser(user: RegisterDto) {
     let { password, email, confirmPassword } = user;
     if (password != confirmPassword) return { message: "Password doesn't matched" }
@@ -35,13 +33,13 @@ export class AuthService {
   }
 
   async Logout(id: string) {
-    let findUser = await this.userService.DeleteUserById(id);
-    return findUser;
+    let deleteUser = await this.userService.DeleteUser(id);
+    return deleteUser;
   }
 
-  async ResetPassword(userId:string,newPassword:string){
+  async ResetPassword(userId: string, newPassword: string) {
     let hashPassword = await this.HashPassword(newPassword);
-    return this.userService.updatePassword(userId,hashPassword);
+    return this.userService.updatePassword(userId, hashPassword);
   }
 
   async GenerateToken(UserInfo: JwtTokenDto) {

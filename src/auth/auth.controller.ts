@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Param, Delete, UseGuards, Req, Patch } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, UseGuards, Req, Patch, Request } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -34,15 +34,17 @@ export class AuthController {
     let msg = `Here's your otp! Don't share this with anyone`
     return this.emailService.sendMail(body.email, msg, otp, 'Password Reset')
   }
-  @Delete('logout/:id')
-  Logout(@Param('id') id: string) {
-    return this.authService.Logout(id);
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('logout')
+  Logout(@Request() req: AuthenticatedRequest) {
+    return this.authService.Logout(req.user.userId);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('reset-password')
   ResetPassword(@Req() req: AuthenticatedRequest, @Body() body: ResetPasswordDto) {
-    return this.authService.ResetPassword(req.user.userId,body.password);
+    return this.authService.ResetPassword(req.user.userId, body.password);
   }
 
   @Get('admin-route')

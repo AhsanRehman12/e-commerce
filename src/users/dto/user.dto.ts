@@ -7,4 +7,8 @@ export class UserDto {
   email: string
   @IsString()
   password: string
+  @IsString()
+  phone: string
+  @IsString()
+  dob: string
 }

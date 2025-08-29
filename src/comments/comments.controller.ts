@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Get, Post, Put, Request, UseGuards, Patch } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthenticatedRequest } from 'src/utils/user.interface';
@@ -12,16 +12,20 @@ export class CommentsController {
   fetchAllComment(){
     return this.commentService.findAllComment();
   }
-  @Post('create-comment')
-  createComment(@Req() req: AuthenticatedRequest, @Body() commentInfo: commentDto) {
+  @Get('/:id')
+  getCommentById(@Param('id') id:string){
+    return this.commentService.findCommentById(id)
+  }
+  @Post()
+  createComment(@Request() req: AuthenticatedRequest, @Body() commentInfo: commentDto) {
     return this.commentService.createComment(req.user.userId,commentInfo)
   }
-  @Put('update-comment/:id')
-  updateComment(@Req() req: AuthenticatedRequest, @Param('id') commentId: string,@Body() comment:commentDto) {
+  @Patch('/:id')
+  updateComment(@Request() req: AuthenticatedRequest, @Param('id') commentId: string,@Body() comment:commentDto) {
     return this.commentService.updateComment(req.user.userId, commentId,comment);
   }
-  @Delete('delete/:id')
-  deleteComment(@Param('id') id:string,@Req() req:AuthenticatedRequest){
-    return this.commentService.deleteComment(id,req.user.userId);
+  @Delete('/:id')
+  deleteComment(@Param('id') id:string,@Request() req:AuthenticatedRequest){
+    return this.commentService.deleteComment(id);
   }
 }
